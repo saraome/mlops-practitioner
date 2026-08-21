@@ -1,29 +1,74 @@
+import logging
 import pickle
+from functools import wraps
 from pathlib import Path
-from typing import Any
+from time import perf_counter
+from typing import Any, Callable, TypeVar
 
 from prodml.config import MODEL_PATH
 
+logger = logging.getLogger(__name__)
 
-def load_model(path: Path = MODEL_PATH) -> dict[str, Any]:
-    """Load the trained model and vectorizer."""
-    with path.open("rb") as f:
-        artifact = pickle.load(f)
-
-    return artifact
+R = TypeVar("R")
 
 
-def predict_duration(
-    features: dict[str, object],
-    path: Path = MODEL_PATH,
-) -> float:
-    """Predict taxi trip duration in minutes."""
-    artifact = load_model(path)
+def timed(func: Callable[..., R]) -> Callable[..., R]:
+    """Measure and log function execution time."""
 
-    vectorizer = artifact["vectorizer"]
-    model = artifact["model"]
+    @wraps(func)
+    def wrapper(*args: object, **kwargs: object) -> R:
+        start_time = perf_counter()
 
-    X = vectorizer.transform([features])
-    prediction = model.predict(X)[0]
+        result = func(*args, **kwargs)
 
-    return float(prediction)
+        elapsed_ms = (perf_counter() - start_time) * 1000
+
+        logger.info(
+            "%s took %.2f ms",
+            func.__name__,
+            elapsed_ms,
+        )
+
+        return result
+
+    return wrapper
+
+
+class DurationPredictor:
+    """Load the trained model and make duration predictions."""
+
+    def __init__(self, vectorizer: Any, model: Any) -> None:
+        self.vectorizer = vectorizer
+        self.model = model
+
+    @classmethod
+    def load(cls, path: Path = MODEL_PATH) -> "DurationPredictor":
+        """Load the vectorizer and model from disk."""
+
+        with path.open("rb") as f:
+            artifact = pickle.load(f)
+
+        return cls(
+            vectorizer=artifact["vectorizer"],
+            model=artifact["model"],
+        )
+
+    @timed
+    def predict_one(self, features: dict[str, object]) -> float:
+        """Predict duration for one trip."""
+
+        X = self.vectorizer.transform([features])
+        prediction = self.model.predict(X)[0]
+
+        return float(prediction)
+
+    def predict_batch(
+        self,
+        features: list[dict[str, object]],
+    ) -> list[float]:
+        """Predict duration for multiple trips."""
+
+        X = self.vectorizer.transform(features)
+        predictions = self.model.predict(X)
+
+        return [float(prediction) for prediction in predictions]
