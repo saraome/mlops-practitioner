@@ -1,3 +1,4 @@
+import logging
 import pickle
 
 from sklearn.feature_extraction import DictVectorizer
@@ -8,9 +9,13 @@ from sklearn.model_selection import train_test_split
 from prodml.config import MODEL_PATH, RANDOM_STATE, TEST_SIZE
 from prodml.data import download_data, load_data, prepare_data
 from prodml.features import add_features, prepare_feature_dicts
+from prodml.logging_conf import setup_logging
+
+logger = logging.getLogger("prodml.train")
 
 
 def main() -> None:
+    setup_logging()
     # Make sure the dataset exists
     data_path = download_data()
 
@@ -53,9 +58,9 @@ def main() -> None:
     mae = mean_absolute_error(y_val, y_pred)
     r2 = r2_score(y_val, y_pred)
 
-    print(f"Validation RMSE: {rmse:.3f}")
-    print(f"Validation MAE: {mae:.3f}")
-    print(f"R²: {r2:.3f}")
+    logger.info("Validation RMSE: %.3f", rmse)
+    logger.info("Validation MAE: %.3f", mae)
+    logger.info("R²: %.3f", r2)
 
     # Save vectorizer and model together
     MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -69,7 +74,7 @@ def main() -> None:
             f,
         )
 
-    print(f"Model saved to: {MODEL_PATH}")
+    logger.info("Model saved to: %s", MODEL_PATH)
 
 
 if __name__ == "__main__":

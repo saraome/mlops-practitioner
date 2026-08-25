@@ -7,7 +7,7 @@ from typing import Any, Callable, TypeVar
 
 from prodml.config import MODEL_PATH
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("prodml.predict")
 
 R = TypeVar("R")
 
@@ -45,8 +45,14 @@ class DurationPredictor:
     def load(cls, path: Path = MODEL_PATH) -> "DurationPredictor":
         """Load the vectorizer and model from disk."""
 
-        with path.open("rb") as f:
-            artifact = pickle.load(f)
+        try:
+            with path.open("rb") as f:
+                artifact = pickle.load(f)
+        except Exception:
+            logger.exception("Failed to load model from %s", path)
+            raise
+
+        logger.info("Model loaded from %s", path)
 
         return cls(
             vectorizer=artifact["vectorizer"],
@@ -57,9 +63,19 @@ class DurationPredictor:
     def predict_one(self, features: dict[str, object]) -> float:
         """Predict duration for one trip."""
 
+        logger.debug("Prediction features: %s", features)
+
+        trip_distance = features.get("trip_distance")
+
+        if isinstance(trip_distance, (int, float)) and trip_distance > 100:
+            logger.warning(
+                "Input outside training range: trip_distance=%s",
+                trip_distance,
+            )
+
         X = self.vectorizer.transform([features])
         prediction = self.model.predict(X)[0]
-
+        logger.info("Prediction served: %.3f minutes", prediction)
         return float(prediction)
 
     def predict_batch(

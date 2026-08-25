@@ -246,3 +246,25 @@ module-1-packaging
 ```
 
 Work is saved using small logical commits before opening one Pull Request for the completed module.
+
+## Structured Logging
+
+The project uses structured JSON logging for application events.
+
+Each log record includes:
+
+- timestamp
+- level
+- logger
+- message
+- correlation_id
+
+The logging system supports different log levels:
+
+- DEBUG for detailed prediction inputs
+- INFO for model loading, predictions, and latency
+- WARNING for inputs outside the expected training range
+- ERROR for model loading failures
+
+A correlation ID context is prepared for request tracing and will be connected to the FastAPI request lifecycle in the API step.
+
