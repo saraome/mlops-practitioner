@@ -37,9 +37,15 @@ def timed(func: Callable[..., R]) -> Callable[..., R]:
 class DurationPredictor:
     """Load the trained model and make duration predictions."""
 
-    def __init__(self, vectorizer: Any, model: Any) -> None:
+    def __init__(
+        self,
+        vectorizer: Any,
+        model: Any,
+        metadata: dict[str, object],
+    ) -> None:
         self.vectorizer = vectorizer
         self.model = model
+        self.metadata = metadata
 
     @classmethod
     def load(cls, path: Path = MODEL_PATH) -> "DurationPredictor":
@@ -57,6 +63,7 @@ class DurationPredictor:
         return cls(
             vectorizer=artifact["vectorizer"],
             model=artifact["model"],
+            metadata=artifact.get("metadata", {}),
         )
 
     @timed

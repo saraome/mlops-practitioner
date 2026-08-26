@@ -1,5 +1,7 @@
 import logging
 import pickle
+from datetime import datetime, timezone
+from importlib.metadata import version
 
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.linear_model import LinearRegression
@@ -70,6 +72,15 @@ def main() -> None:
             {
                 "vectorizer": dv,
                 "model": model,
+                "metadata": {
+                    "model_version": version("mlops-practitioner"),
+                    "training_date": datetime.now(timezone.utc).isoformat(),
+                    "feature_names": [
+                        "PU_DO",
+                        "trip_distance",
+                    ],
+                    "framework": "scikit-learn",
+                },
             },
             f,
         )

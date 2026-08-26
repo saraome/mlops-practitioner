@@ -581,7 +581,113 @@ ONNX model
      ↓
 Trip duration prediction
 ```
+## FastAPI Prediction Service
 
+The trained model is exposed through a FastAPI application.
+
+Run the API locally using:
+
+```bash
+uvicorn prodml.api.main:app --reload --port 8000
+```
+
+Interactive API documentation is available at:
+
+```text
+http://localhost:8000/docs
+```
+
+### API Endpoints
+
+| Endpoint | Method | Description |
+| --- | --- | --- |
+| `/health` | GET | Checks that the API and model are ready |
+| `/metadata` | GET | Returns model metadata |
+| `/predict` | POST | Returns a prediction for one trip |
+| `/predict/batch` | POST | Returns predictions for multiple trips |
+
+### Health Check
+
+```bash
+curl http://localhost:8000/health
+```
+
+Expected response:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+### Model Metadata
+
+```bash
+curl http://localhost:8000/metadata
+```
+
+The metadata response includes:
+
+- model version
+- training date
+- feature names
+- framework
+- model artifact hash
+
+### Single Prediction
+
+Example request:
+
+```json
+{
+  "PU_DO": "74_236",
+  "trip_distance": 2.5
+}
+```
+
+The response includes:
+
+- predicted trip duration
+- model version
+- correlation ID
+- prediction latency
+
+### Batch Prediction
+
+The `/predict/batch` endpoint accepts a list of prediction requests and returns a list of prediction responses.
+
+### Request Validation
+
+Input data is validated using Pydantic.
+
+For example, the following input is invalid:
+
+```json
+{
+  "PU_DO": "74_236",
+  "trip_distance": -5
+}
+```
+
+The API returns:
+
+```text
+HTTP 422 Unprocessable Entity
+```
+
+with a readable validation error.
+
+### Correlation IDs
+
+Each API request receives a correlation ID.
+
+The same ID is included in:
+
+- structured application logs
+- the prediction response
+- the `X-Request-ID` response header
+
+This allows individual requests to be traced through the application.
 ---
 
 ## Current Progress
