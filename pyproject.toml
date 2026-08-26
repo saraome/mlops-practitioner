@@ -47,6 +47,11 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "I"]
 
+[tool.mypy]
+python_version = "3.12"
+mypy_path = "src"
+disallow_untyped_defs = true
+
 [[tool.mypy.overrides]]
 module = [
     "sklearn.*",
@@ -56,3 +61,6 @@ module = [
     "skl2onnx.*",
 ]
 ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = "--cov=src/prodml --cov-fail-under=70"

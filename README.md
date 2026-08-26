@@ -690,6 +690,33 @@ The same ID is included in:
 This allows individual requests to be traced through the application.
 ---
 
+## Testing
+
+The project includes automated tests for:
+
+- feature engineering and edge cases
+- single and batch prediction
+- FastAPI endpoints and validation
+- data loading and preparation
+- training pipeline
+- Pickle and ONNX prediction parity
+
+Run the full test suite with:
+
+```bash
+uv run pytest
+```
+
+The project enforces a minimum test coverage of 70%.
+
+Current test coverage:
+
+```text
+71.56%
+```
+
+The test suite uses pytest fixtures, parametrized tests, and monkeypatching to keep tests isolated and reproducible.
+
 ## Current Progress
 
 The following work has been completed:

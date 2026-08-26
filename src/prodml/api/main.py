@@ -1,5 +1,6 @@
 import hashlib
 import logging
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from time import perf_counter
 from uuid import uuid4
@@ -24,7 +25,7 @@ logger = logging.getLogger("prodml.api")
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Load the model once when the API starts."""
 
     setup_logging()
