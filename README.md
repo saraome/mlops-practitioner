@@ -717,6 +717,93 @@ Current test coverage:
 
 The test suite uses pytest fixtures, parametrized tests, and monkeypatching to keep tests isolated and reproducible.
 
+## Docker
+
+The FastAPI prediction service can be packaged and run using Docker.
+
+### Build the Docker Image
+
+```bash
+docker build -f docker/Dockerfile -t prodml-api:latest .
+```
+
+The project uses a multi-stage Docker build with Python 3.12.
+
+The runtime container runs using a non-root user:
+
+```text
+appuser
+```
+
+### Run with Docker Compose
+
+Start the API service:
+
+```bash
+docker compose up -d
+```
+
+Check the running service:
+
+```bash
+docker compose ps
+```
+
+Test the health endpoint:
+
+```bash
+curl http://localhost:8000/health
+```
+
+Expected response:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+Stop the service:
+
+```bash
+docker compose down
+```
+
+### Docker Image Details
+
+The Docker image includes:
+
+- the `prodml` Python package
+- application dependencies
+- the trained model artifact
+- the FastAPI prediction service
+- a container health check
+- a non-root runtime user
+
+### Docker Image Size
+
+The image was built before and after adding `.dockerignore`.
+
+| Build | Content Size |
+| --- | ---: |
+| Without `.dockerignore` | 246 MB |
+| With `.dockerignore` | 246 MB |
+
+The final image size did not change because the Dockerfile already copies only the required project files.
+
+The `.dockerignore` still reduces unnecessary Docker build context by excluding files such as the virtual environment, dataset, notebooks, tests, caches, and Git metadata.
+
+### Docker Hub
+
+The image was published to Docker Hub as:
+
+```text
+sarahelfishawy/prodml-api:0.1.0
+sarahelfishawy/prodml-api:latest
+```
+
+The versioned tag provides a reproducible release, while `latest` points to the most recent published image.
+
 ## Current Progress
 
 The following work has been completed:
@@ -738,12 +825,39 @@ The following work has been completed:
 - mypy type checking
 - pre-commit hooks
 - structured JSON logging
+- correlation ID propagation
 - logging levels
 - Pickle model serialization
 - ONNX model export
 - Pickle / ONNX prediction parity testing
 - Pickle / ONNX latency benchmarking
 - serialization format comparison
+- FastAPI prediction service
+- `/health` endpoint
+- `/metadata` endpoint
+- `/predict` endpoint
+- `/predict/batch` endpoint
+- Pydantic request validation
+- API error handling
+- request correlation IDs and `X-Request-ID` headers
+- automated test suite with pytest
+- shared pytest fixtures
+- parametrized edge-case tests
+- monkeypatch-based isolated tests
+- API endpoint tests
+- training pipeline tests
+- serialization tests
+- test coverage gate of at least 70%
+- current test coverage above 70%
+- multi-stage Docker image
+- non-root Docker runtime user
+- Docker health check
+- `.dockerignore`
+- Docker Compose configuration
+- Docker image size comparison
+- Docker Hub image publishing
+- versioned Docker image tag
+- `latest` Docker image tag
 
 ---
 
@@ -755,8 +869,9 @@ The current Module 1 branch is:
 
 ```text
 module-1-packaging
-```
 
-Changes are saved using small logical commits.
+Work is organized into small, logical commits so that each change is easy to understand, review, and track.
 
-The completed module will later be submitted through one Pull Request according to the project collaboration workflow.
+Each major step in Module 1 is committed separately.
+
+After completing the module, the branch will be pushed to GitHub and submitted as a Pull Request for review before being merged into main.
