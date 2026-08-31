@@ -7,6 +7,50 @@ The project currently predicts NYC Green Taxi trip duration in minutes.
 The work starts with a baseline Jupyter Notebook and gradually applies software engineering and MLOps practices while preserving the original machine learning behavior.
 
 ---
+## Quick Start — 3 Commands
+
+Assuming the repository is already cloned and `uv` is installed, you can go from the project code to a real prediction in three commands.
+
+### 1. Install and synchronize the project environment
+
+```bash
+uv sync
+```
+
+### 2. Start the FastAPI prediction service
+
+```bash
+uv run uvicorn prodml.api.main:app --host 0.0.0.0 --port 8000
+```
+
+### 3. Send a prediction request
+
+Run this command in a second terminal:
+
+```bash
+curl -X POST http://localhost:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"PU_DO":"74_236","trip_distance":2.5}'
+```
+
+Example response:
+
+```json
+{
+  "prediction": 12.4679,
+  "model_version": "0.1.0",
+  "correlation_id": "...",
+  "latency_ms": 1.2
+}
+```
+
+Interactive API documentation is available at:
+
+```text
+http://localhost:8000/docs
+```
+
+---
 
 ## Project Goal
 
@@ -869,9 +913,10 @@ The current Module 1 branch is:
 
 ```text
 module-1-packaging
+```
 
 Work is organized into small, logical commits so that each change is easy to understand, review, and track.
 
 Each major step in Module 1 is committed separately.
 
-After completing the module, the branch will be pushed to GitHub and submitted as a Pull Request for review before being merged into main.
+After completing the module, the branch will be submitted as a Pull Request for review before being merged into `main`.
