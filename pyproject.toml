@@ -1,0 +1,66 @@
+[project]
+name = "mlops-practitioner"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.141.1",
+    "onnxruntime>=1.29.0",
+    "pandas>=3.0.5",
+    "pyarrow>=25.0.1",
+    "pydantic>=2.13.4",
+    "python-json-logger>=4.2.0",
+    "scikit-learn>=1.9.0",
+    "skl2onnx>=1.20.0",
+    "uvicorn>=0.52.4",
+]
+
+[dependency-groups]
+dev = [
+    "black>=26.5.1",
+    "httpx>=0.28.1",
+    "mypy>=2.3.1",
+    "pandas-stubs>=3.0.5.260730",
+    "pre-commit>=4.6.2",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.16.4",
+]
+
+[project.scripts]
+prodml-train = "prodml.train:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.mypy]
+python_version = "3.12"
+mypy_path = "src"
+disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = [
+    "sklearn.*",
+    "onnxruntime",
+    "onnxruntime.*",
+    "skl2onnx",
+    "skl2onnx.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = "--cov=src/prodml --cov-fail-under=70"

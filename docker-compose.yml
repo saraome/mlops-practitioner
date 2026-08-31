@@ -1,0 +1,18 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+
+    image: prodml-api:latest
+
+    ports:
+      - "8000:8000"
+
+    environment:
+      PRODML_MODEL_PATH: /app/models/model.pkl
+
+    volumes:
+      - ./models:/app/models:ro
+
+    restart: unless-stopped
